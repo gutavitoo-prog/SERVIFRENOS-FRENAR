@@ -1,0 +1,7 @@
+{
+  "name": "NovaPOS - Advanced Local POS System",
+  "description": "A comprehensive local Point of Sale system with stock management, receipt printing, brand customization, bulk Excel import, and AI-powered product data extraction.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
