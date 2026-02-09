@@ -8,6 +8,19 @@ export interface Product {
   stock: number;
   category: string;
   image?: string;
+  source?: 'local' | 'external';
+}
+
+export interface ExternalSource {
+  id: string;
+  nombre: string;
+  url_base: string;
+  color_identificador: string;
+  logo_path?: string;
+  selector_precio_css: string;
+  cookies_config?: string;
+  requires_login: boolean;
+  active: boolean;
 }
 
 export interface SaleItem extends Product {
@@ -29,6 +42,23 @@ export interface BrandConfig {
   secondaryColor: string;
   currency: string;
   receiptFooter: string;
+  searchMode: 'local' | 'global';
+}
+
+export interface UnifiedSearchResult {
+  id: string;
+  fuente: string;
+  nombre: string;
+  sku: string;
+  precio: number | string; 
+  link: string;
+  tipo: 'local' | 'external';
+  color: string;
+  logo?: string;
+  image?: string;
+  stock?: number;
+  isBestPrice?: boolean;
+  status?: 'ok' | 'requires_login' | 'error';
 }
 
 export enum View {
@@ -38,5 +68,6 @@ export enum View {
   SALES_HISTORY = 'SALES_HISTORY',
   IMPORT = 'IMPORT',
   SCRAPING = 'SCRAPING',
+  SOURCES = 'SOURCES',
   SETTINGS = 'SETTINGS'
 }

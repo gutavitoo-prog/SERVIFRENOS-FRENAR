@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { db } from '../db';
 import { Product, BrandConfig } from '../types';
-import { Globe, Sparkles, Loader2, Plus, ArrowRight } from 'lucide-react';
+import { Globe, Sparkles, Loader2, Plus } from 'lucide-react';
 import { extractProductsFromText } from '../geminiService';
 
 interface ScrapingProps {
@@ -38,6 +38,7 @@ const Scraping: React.FC<ScrapingProps> = ({ onComplete, config }) => {
       cost: 0,
       stock: 0,
       category: p.category || 'Importado',
+      source: 'external' // MARCADO COMO EXTERNO
     };
     await db.saveProduct(newProduct);
     setExtractedProducts(prev => prev.filter(item => item !== p));
@@ -78,7 +79,7 @@ const Scraping: React.FC<ScrapingProps> = ({ onComplete, config }) => {
             {extractedProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full p-12 text-center gap-4 text-gray-400">
                 <Globe size={48} className="opacity-10" />
-                <p>Usa el panel de la izquierda para extraer productos desde una URL o fragmento de texto.</p>
+                <p>Usa el panel de la izquierda para extraer productos.</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
@@ -95,7 +96,6 @@ const Scraping: React.FC<ScrapingProps> = ({ onComplete, config }) => {
                     <button
                       onClick={() => addToInventory(p)}
                       className="p-2 bg-green-50 text-green-600 rounded-full hover:bg-green-100 transition-all"
-                      title="Agregar al inventario"
                     >
                       <Plus size={20} />
                     </button>

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { db } from './db';
-import { Product, View, BrandConfig, Sale } from './types';
+import { Product, View, BrandConfig, Sale, ExternalSource } from './types';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import POS from './components/POS';
@@ -10,15 +10,7 @@ import SalesHistory from './components/SalesHistory';
 import BulkImport from './components/BulkImport';
 import Scraping from './components/Scraping';
 import Settings from './components/Settings';
-import { 
-  LayoutDashboard, 
-  ShoppingCart, 
-  Package, 
-  History, 
-  Upload, 
-  Globe, 
-  Settings as SettingsIcon 
-} from 'lucide-react';
+import SourcesManager from './components/SourcesManager';
 
 const DEFAULT_BRAND: BrandConfig = {
   name: 'NovaPOS',
@@ -26,13 +18,15 @@ const DEFAULT_BRAND: BrandConfig = {
   primaryColor: '#6366f1',
   secondaryColor: '#4f46e5',
   currency: '$',
-  receiptFooter: '¡Gracias por su compra!'
+  receiptFooter: '¡Gracias por su compra!',
+  searchMode: 'local'
 };
 
 const App: React.FC = () => {
   const [view, setView] = useState<View>(View.DASHBOARD);
   const [products, setProducts] = useState<Product[]>([]);
   const [sales, setSales] = useState<Sale[]>([]);
+  const [sources, setSources] = useState<ExternalSource[]>([]);
   const [config, setConfig] = useState<BrandConfig>(DEFAULT_BRAND);
   const [loading, setLoading] = useState(true);
 
@@ -41,8 +35,10 @@ const App: React.FC = () => {
     const p = await db.getAllProducts();
     const s = await db.getAllSales();
     const c = await db.getConfig();
+    const src = await db.getAllExternalSources();
     setProducts(p);
     setSales(s);
+    setSources(src);
     if (c) setConfig(c);
     setLoading(false);
   }, []);
@@ -51,15 +47,26 @@ const App: React.FC = () => {
     refreshData();
   }, [refreshData]);
 
+  useEffect(() => {
+    document.documentElement.style.setProperty('--primary-color', config.primaryColor);
+    document.documentElement.style.setProperty('--secondary-color', config.secondaryColor);
+  }, [config]);
+
   const updateConfig = async (newConfig: BrandConfig) => {
     await db.saveConfig(newConfig);
     setConfig(newConfig);
   };
 
+  const toggleSearchMode = async () => {
+    const newMode = config.searchMode === 'local' ? 'global' : 'local';
+    const newConfig = { ...config, searchMode: newMode };
+    await updateConfig(newConfig);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600" style={{ borderBottomColor: config.primaryColor }}></div>
       </div>
     );
   }
@@ -69,7 +76,15 @@ const App: React.FC = () => {
       case View.DASHBOARD:
         return <Dashboard products={products} sales={sales} config={config} />;
       case View.POS:
-        return <POS products={products} onSaleComplete={refreshData} config={config} />;
+        return (
+          <POS 
+            products={products} 
+            onSaleComplete={refreshData} 
+            config={config} 
+            externalSources={sources}
+            onToggleSearch={toggleSearchMode}
+          />
+        );
       case View.INVENTORY:
         return <Inventory products={products} onUpdate={refreshData} config={config} />;
       case View.SALES_HISTORY:
@@ -78,6 +93,8 @@ const App: React.FC = () => {
         return <BulkImport onComplete={refreshData} config={config} />;
       case View.SCRAPING:
         return <Scraping onComplete={refreshData} config={config} />;
+      case View.SOURCES:
+        return <SourcesManager onUpdate={refreshData} config={config} />;
       case View.SETTINGS:
         return <Settings config={config} onSave={updateConfig} />;
       default:

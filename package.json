@@ -14,7 +14,10 @@
     "react": "^19.2.4",
     "xlsx": "^0.18.5",
     "@google/genai": "^1.40.0",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "fuse.js": "7.0.0",
+    "axios": "1.6.7",
+    "cheerio": "1.0.0-rc.12"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

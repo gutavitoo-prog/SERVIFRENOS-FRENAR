@@ -8,7 +8,8 @@ import {
   History, 
   Upload, 
   Globe, 
-  Settings as SettingsIcon 
+  Settings as SettingsIcon,
+  Database
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -25,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, setView, config }) => {
     { id: View.SALES_HISTORY, label: 'Ventas', icon: History },
     { id: View.IMPORT, label: 'Carga Masiva', icon: Upload },
     { id: View.SCRAPING, label: 'Extraer Web', icon: Globe },
+    { id: View.SOURCES, label: 'Fuentes Externas', icon: Database },
     { id: View.SETTINGS, label: 'Configuración', icon: SettingsIcon },
   ];
 

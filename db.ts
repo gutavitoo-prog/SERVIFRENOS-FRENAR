@@ -1,8 +1,8 @@
 
-import { Product, Sale, BrandConfig } from './types';
+import { Product, Sale, BrandConfig, ExternalSource } from './types';
 
 const DB_NAME = 'NovaPOS_DB';
-const DB_VERSION = 1;
+const DB_VERSION = 4; 
 
 export class POSDatabase {
   private db: IDBDatabase | null = null;
@@ -21,6 +21,9 @@ export class POSDatabase {
         }
         if (!db.objectStoreNames.contains('config')) {
           db.createObjectStore('config', { keyPath: 'key' });
+        }
+        if (!db.objectStoreNames.contains('fuentes_scraping')) {
+          db.createObjectStore('fuentes_scraping', { keyPath: 'id' });
         }
       };
 
@@ -51,7 +54,6 @@ export class POSDatabase {
 
   async saveSale(sale: Sale): Promise<void> {
     await this.put('sales', sale);
-    // Update stock
     for (const item of sale.items) {
       const product = await this.get<Product>('products', item.id);
       if (product) {
@@ -68,6 +70,18 @@ export class POSDatabase {
 
   async saveConfig(config: BrandConfig): Promise<void> {
     await this.put('config', { key: 'brand', value: config });
+  }
+
+  async getAllExternalSources(): Promise<ExternalSource[]> {
+    return this.getAll<ExternalSource>('fuentes_scraping');
+  }
+
+  async saveExternalSource(source: ExternalSource): Promise<void> {
+    await this.put('fuentes_scraping', source);
+  }
+
+  async deleteExternalSource(id: string): Promise<void> {
+    await this.delete('fuentes_scraping', id);
   }
 
   private async getAll<T>(storeName: string): Promise<T[]> {
